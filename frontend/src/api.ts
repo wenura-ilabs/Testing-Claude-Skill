@@ -14,7 +14,10 @@ export interface Booking {
   time: string
   customerName: string
   customerEmail: string
+  originalPrice: number
+  discountAmount: number
   totalPrice: number
+  promoCode: string | null
   status: 'CONFIRMED' | 'CANCELLED'
 }
 
@@ -24,6 +27,7 @@ export interface CreateBookingRequest {
   time: string
   customerName: string
   customerEmail: string
+  promoCode?: string
 }
 
 export class ApiError extends Error {

@@ -9,6 +9,7 @@ export default function BookingForm({ services }: { services: Service[] }) {
   const [time, setTime] = useState('')
   const [customerName, setCustomerName] = useState('')
   const [customerEmail, setCustomerEmail] = useState('')
+  const [promoCode, setPromoCode] = useState('')
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState(false)
@@ -24,7 +25,14 @@ export default function BookingForm({ services }: { services: Service[] }) {
     setSubmitting(true)
     try {
       setBooking(
-        await createBooking({ serviceId: Number(serviceId), date, time, customerName, customerEmail }),
+        await createBooking({
+          serviceId: Number(serviceId),
+          date,
+          time,
+          customerName,
+          customerEmail,
+          ...(promoCode.trim() && { promoCode: promoCode.trim() }),
+        }),
       )
     } catch (e) {
       setError((e as Error).message)
@@ -86,7 +94,15 @@ export default function BookingForm({ services }: { services: Service[] }) {
           />
           {fieldError('customerEmail')}
         </label>
-        {selected && <p>Total price: {formatPrice(selected.price)}</p>}
+        <label>
+          Promo code
+          <input
+            value={promoCode}
+            onChange={(e) => setPromoCode(e.target.value)}
+            placeholder="Optional"
+          />
+        </label>
+        {selected && <p>Service price: {formatPrice(selected.price)}</p>}
         <button type="submit" disabled={submitting}>
           Book
         </button>

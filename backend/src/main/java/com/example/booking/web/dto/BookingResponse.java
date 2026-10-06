@@ -19,7 +19,10 @@ public class BookingResponse {
 	private final LocalTime time;
 	private final String customerName;
 	private final String customerEmail;
+	private final BigDecimal originalPrice;
+	private final BigDecimal discountAmount;
 	private final BigDecimal totalPrice;
+	private final String promoCode;
 	private final BookingStatus status;
 
 	public BookingResponse(Booking booking) {
@@ -31,7 +34,10 @@ public class BookingResponse {
 		this.time = booking.getTime();
 		this.customerName = booking.getCustomerName();
 		this.customerEmail = booking.getCustomerEmail();
+		this.originalPrice = booking.getOriginalPrice();
+		this.discountAmount = booking.getDiscountAmount();
 		this.totalPrice = booking.getTotalPrice();
+		this.promoCode = booking.getPromoCode();
 		this.status = booking.getStatus();
 	}
 
@@ -65,6 +71,18 @@ public class BookingResponse {
 
 	public String getCustomerEmail() {
 		return customerEmail;
+	}
+
+	public BigDecimal getOriginalPrice() {
+		return originalPrice;
+	}
+
+	public BigDecimal getDiscountAmount() {
+		return discountAmount;
+	}
+
+	public String getPromoCode() {
+		return promoCode;
 	}
 
 	public BigDecimal getTotalPrice() {
