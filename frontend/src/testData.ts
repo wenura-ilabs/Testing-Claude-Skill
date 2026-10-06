@@ -14,6 +14,9 @@ export const booking: Booking = {
   time: '10:00',
   customerName: 'Ada Lovelace',
   customerEmail: 'ada@example.com',
+  originalPrice: 25,
+  discountAmount: 0,
   totalPrice: 25,
+  promoCode: null,
   status: 'CONFIRMED',
 }

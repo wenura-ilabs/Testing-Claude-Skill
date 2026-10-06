@@ -46,6 +46,10 @@ Backend
 - Use the injected `Clock` for the current time, never a bare `LocalDateTime.now()`.
 - Schema changes go in a new Flyway migration (`V3__...sql`); never edit an applied migration. SQL must run on both PostgreSQL and H2 (PostgreSQL mode). Hibernate runs with `ddl-auto=validate`.
 - Double-booking is prevented by a check in the service and by the `uq_bookings_active_slot` unique constraint (`active_slot` is TRUE for confirmed bookings and NULL for cancelled ones). Keep both.
+- Promo code rules live in `PromoCodeService`; discount maths lives in `PromoCode.discountFor`. `BookingService.create` runs the promo check last, after every other booking check, so a rejected booking never uses up a code. Promo rejections are `InvalidBookingException` (400) with the exact messages listed in the README.
+- A code's usage limit is enforced by locking its `promo_codes` row (`findByCodeForUpdate`) before counting confirmed bookings, inside the booking transaction. Don't replace this with a plain count: `usageLimitHoldsUnderConcurrentBookings` fails without the lock.
+- `BookingService` keeps its 3-argument constructor and 5-argument `create` for bookings without a promo code.
+- Don't log customer names or emails.
 - Database credentials come only from environment variables (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`). Never hardcode them or commit `.env`.
 - Tests: unit tests use Mockito and a fixed `Clock`; integration tests use `@SpringBootTest` + `MockMvc` with `@ActiveProfiles("test")`.
 

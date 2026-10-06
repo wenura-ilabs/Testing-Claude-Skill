@@ -40,8 +40,18 @@ export default function BookingDetails({ booking, onChange }: Props) {
         <dd>
           {booking.customerName} ({booking.customerEmail})
         </dd>
+        <dt>Original price</dt>
+        <dd>{formatPrice(booking.originalPrice)}</dd>
+        <dt>Discount</dt>
+        <dd>{formatPrice(booking.discountAmount)}</dd>
         <dt>Total price</dt>
         <dd>{formatPrice(booking.totalPrice)}</dd>
+        {booking.promoCode && (
+          <>
+            <dt>Promo code</dt>
+            <dd>{booking.promoCode}</dd>
+          </>
+        )}
         <dt>Status</dt>
         <dd>{booking.status}</dd>
       </dl>

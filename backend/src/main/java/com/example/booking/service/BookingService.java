@@ -7,10 +7,12 @@ import java.time.LocalTime;
 
 import com.example.booking.domain.Booking;
 import com.example.booking.domain.BookingStatus;
+import com.example.booking.domain.PromoCode;
 import com.example.booking.domain.ServiceOffering;
 import com.example.booking.repository.BookingRepository;
 import com.example.booking.repository.ServiceOfferingRepository;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,18 +26,35 @@ public class BookingService {
 
 	private final BookingRepository bookingRepository;
 	private final ServiceOfferingRepository serviceRepository;
+	private final PromoCodeService promoCodeService;
 	private final Clock clock;
 
+	// For bookings without promo codes only.
 	public BookingService(BookingRepository bookingRepository, ServiceOfferingRepository serviceRepository,
 			Clock clock) {
+		this(bookingRepository, serviceRepository, null, clock);
+	}
+
+	@Autowired
+	public BookingService(BookingRepository bookingRepository, ServiceOfferingRepository serviceRepository,
+			PromoCodeService promoCodeService, Clock clock) {
 		this.bookingRepository = bookingRepository;
 		this.serviceRepository = serviceRepository;
+		this.promoCodeService = promoCodeService;
 		this.clock = clock;
 	}
 
 	@Transactional
 	public Booking create(Long serviceId, LocalDate date, LocalTime time, String customerName,
 			String customerEmail) {
+		return create(serviceId, date, time, customerName, customerEmail, null);
+	}
+
+	@Transactional
+	public Booking create(Long serviceId, LocalDate date, LocalTime time, String customerName,
+			String customerEmail, String promoCode) {
+		String code = PromoCodeService.normalize(promoCode);
+
 		ServiceOffering service = serviceRepository.findById(serviceId)
 			.orElseThrow(() -> new NotFoundException("Service " + serviceId + " not found"));
 
@@ -50,8 +69,12 @@ public class BookingService {
 			throw slotTaken(date, time);
 		}
 
+		// Promo checks come last so a booking rejected for any other reason never uses up a code.
+		PromoCode promo = (code != null) ? promoCodeService.redeem(code, service.getPrice()) : null;
+
 		try {
-			return bookingRepository.saveAndFlush(new Booking(service, date, time, customerName, customerEmail));
+			return bookingRepository
+				.saveAndFlush(new Booking(service, date, time, customerName, customerEmail, promo));
 		}
 		catch (DataIntegrityViolationException ex) {
 			// A concurrent request took the slot between the check above and the insert.

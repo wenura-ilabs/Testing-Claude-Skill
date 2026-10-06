@@ -12,4 +12,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
 	boolean existsByDateAndTimeAndStatus(LocalDate date, LocalTime time, BookingStatus status);
 
+	long countByPromoCodeAndStatus(String promoCode, BookingStatus status);
+
 }

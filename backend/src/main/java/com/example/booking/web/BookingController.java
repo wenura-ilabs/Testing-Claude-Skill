@@ -30,7 +30,8 @@ public class BookingController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public BookingResponse create(@Valid @RequestBody CreateBookingRequest request) {
 		Booking booking = bookingService.create(request.getServiceId(), request.getDate(), request.getTime(),
-				request.getCustomerName().trim(), request.getCustomerEmail().trim());
+				request.getCustomerName().trim(), request.getCustomerEmail().trim(),
+				request.getPromoCode());
 		return new BookingResponse(booking);
 	}
 

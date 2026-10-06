@@ -31,6 +31,9 @@ public class CreateBookingRequest {
 	@Size(max = 255, message = "Customer email must be at most 255 characters")
 	private String customerEmail;
 
+	// Optional. Normalised and length-checked by PromoCodeService, after trimming.
+	private String promoCode;
+
 	public Long getServiceId() {
 		return serviceId;
 	}
@@ -69,6 +72,14 @@ public class CreateBookingRequest {
 
 	public void setCustomerEmail(String customerEmail) {
 		this.customerEmail = customerEmail;
+	}
+
+	public String getPromoCode() {
+		return promoCode;
+	}
+
+	public void setPromoCode(String promoCode) {
+		this.promoCode = promoCode;
 	}
 
 }

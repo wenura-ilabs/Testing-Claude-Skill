@@ -40,8 +40,18 @@ public class Booking {
 	@Column(name = "customer_email", nullable = false)
 	private String customerEmail;
 
+	@Column(name = "original_price", nullable = false)
+	private BigDecimal originalPrice;
+
+	@Column(name = "discount_amount", nullable = false)
+	private BigDecimal discountAmount;
+
 	@Column(name = "total_price", nullable = false)
 	private BigDecimal totalPrice;
+
+	// Prices and code are fixed at booking time; later changes to the code do not affect them.
+	@Column(name = "promo_code")
+	private String promoCode;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -56,12 +66,21 @@ public class Booking {
 
 	public Booking(ServiceOffering service, LocalDate date, LocalTime time, String customerName,
 			String customerEmail) {
+		this(service, date, time, customerName, customerEmail, null);
+	}
+
+	public Booking(ServiceOffering service, LocalDate date, LocalTime time, String customerName,
+			String customerEmail, PromoCode promoCode) {
 		this.service = service;
 		this.date = date;
 		this.time = time;
 		this.customerName = customerName;
 		this.customerEmail = customerEmail;
-		this.totalPrice = service.getPrice();
+		this.originalPrice = service.getPrice();
+		this.discountAmount = (promoCode != null) ? promoCode.discountFor(originalPrice)
+				: BigDecimal.ZERO.setScale(2);
+		this.totalPrice = originalPrice.subtract(discountAmount);
+		this.promoCode = (promoCode != null) ? promoCode.getCode() : null;
 	}
 
 	public void cancel() {
@@ -91,6 +110,18 @@ public class Booking {
 
 	public String getCustomerEmail() {
 		return customerEmail;
+	}
+
+	public BigDecimal getOriginalPrice() {
+		return originalPrice;
+	}
+
+	public BigDecimal getDiscountAmount() {
+		return discountAmount;
+	}
+
+	public String getPromoCode() {
+		return promoCode;
 	}
 
 	public BigDecimal getTotalPrice() {
